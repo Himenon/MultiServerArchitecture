@@ -1,0 +1,45 @@
+version: '2.1'
+
+services:
+  backend:
+    build:
+      context: ./backend01
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDIS_HOST: broker
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_SUBSCRIBE_CHANNEL: "multi-server"
+    ports:
+      - 5000:5000
+    volumes:
+      - ./backend01:/code
+    depends_on:
+      - broker
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    command: npm run dev
+    environment:
+      HOST: '0.0.0.0'
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/code
+
+  broker:
+    image: redis
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+
+  db:
+    image: mongo:3.7.3-jessie
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
