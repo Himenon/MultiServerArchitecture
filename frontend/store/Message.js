@@ -3,36 +3,34 @@ import io from 'socket.io-client'
 
 let socket = null
 
+const EMIT_TARGET_EVENT_MESSAGE = 'event_message'
+
 function setWebsocket(socketUrl) {
   socket = io(socketUrl)
 }
 
 function listenWebsocket(commit) {
   socket.on('connect', function () {
-    socket.emit('my_event', {data: 'I\'m connected'})
+    socket.emit(EMIT_TARGET_EVENT_MESSAGE, {data: 'I\'m connected'})
   })
   socket.on('new_message', function (msg) {
     console.log("ReceiveMessage")
-    if (msg.username && msg.body) {
+    if (msg && ('username' in msg) && ('body' in msg) && msg['username'] && msg['body']) {
       commit('setMessage', msg)
     }
   })
 }
 
 function sendMessage(message) {
-  socket.emit('my_event', message)
+  socket.emit(EMIT_TARGET_EVENT_MESSAGE, message)
 }
 
 const state = () => ({
   messages: [
     {
-      username: 'user1',
-      body: 'こんにちは'
+      username: 'システム(初期メッセージ)',
+      body: 'ようこそ。ユーザー名とメッセージを入力して送信してください。'
     },
-    {
-      username: 'user2',
-      body: 'こんばんは'
-    }
   ]
 })
 

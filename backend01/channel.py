@@ -12,67 +12,70 @@ socketio = SocketIO()
 thread = None
 thread_lock = Lock()
 
-ns = '/test'
+# WebSocketの接続先ネームスペースを用意
+# http://localhost:5000/websocket
+WS_NAMESPACE = '/websocket'
 
 CONN = redis.StrictRedis(
     host=environ.get('REDIS_HOST'),
     port=environ.get('REDIS_PORT'),
     db=environ.get('REDIS_DB'))
 
-CHANNEL = environ.get('REDIS_SUBSCRIBE_CHANNEL')
-TARGET_CLIENT_SERVER = 'my_event'
-TARGET_BETWEEN_SERVERS = 'mutli_server'
+PUBLISH_CHANNEL = SUBSCRIBE_CHANNEL = environ.get('REDIS_SUBSCRIBE_CHANNEL')
+EMIT_TARGET_NEW_MESSAGE = 'new_message'
+EMIT_TARGET_EVENT_MESSAGE = 'event_message'
 
 
 def publish_message(channel, message):
-    print("Redis {} にPublishします".format(channel))
+    """
+    シリアライズ化して送信
+    """
     CONN.publish(channel, json.dumps(message))
 
 
 def subscribe_message(channel):
-    print("{}をSubscribeします".format(channel))
     p = CONN.pubsub()
     p.subscribe(channel)
     return p
 
-
-def format_message(message):
-    print(message)
-    if isinstance(message['data'], bytes):
-        json_data = message['data'].decode('utf-8')
-        fmt_data = json.loads(json_data)
-        return {'username': fmt_data.get('username'), 'body': fmt_data.get('body')}
-
-
 def background_thread():
-    global TARGET_BETWEEN_SERVERS
-    p = subscribe_message(CHANNEL)
+    global SUBSCRIBE_CHANNEL
+    p = subscribe_message(SUBSCRIBE_CHANNEL)
+
+    def _convert_fmt_message(data):
+        # デシリアライズ化する
+        _fmt_data = json.loads(data.decode('utf-8'))
+        return {'username': _fmt_data.get('username'), 'body': _fmt_data.get('body')}
+
     while True:
-        socketio.sleep(1)
-        recive_msg = p.get_message()
-        if recive_msg:
-            message = format_message(recive_msg)
-            socketio.emit('new_message', message, namespace=ns)
+        socketio.sleep(0.01)
+        _rcv_msg = p.get_message()
+        if not _rcv_msg:
+            continue
+        _data = _rcv_msg['data']
+        if not isinstance(_data, bytes):
+            continue
+        message = _convert_fmt_message(_data)
+        socketio.emit(EMIT_TARGET_NEW_MESSAGE, message, namespace=ns)        
 
 
-@socketio.on('connect', namespace=ns)
-def my_connect():
+@socketio.on('connect', namespace=WS_NAMESPACE)
+def connect_to_client():
     global thread
     with thread_lock:
         if thread is None:
             thread = socketio.start_background_task(target=background_thread)
 
 
-@socketio.on(TARGET_CLIENT_SERVER, namespace=ns)
-def my_message(message):
-    print("Clientから受信しました")
-    global CHANNEL
-    publish_message(CHANNEL, message)
-    # emit('server_message', message)
+@socketio.on(EMIT_TARGET_EVENT_MESSAGE, namespace=WS_NAMESPACE)
+def save_message(message):
+    global PUBLISH_CHANNEL
+    # TODO メッセージの永続化
+    publish_message(PUBLISH_CHANNEL, message)
 
 
-@socketio.on('disconnect', namespace=ns)
+@socketio.on('disconnect', namespace=WS_NAMESPACE)
 def my_disconnect():
-    # emit('server_message',
-    #      {'data': 'Disconnected!', 'count': session['receive_count']})
+    global EMIT_TARGET_EVENT_MESSAGE
+    emit(EMIT_TARGET_EVENT_MESSAGE, {'username': 'システム', 'body': '接続が切れました。'})
     disconnect()

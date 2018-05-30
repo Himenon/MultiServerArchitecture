@@ -46,7 +46,7 @@ export default {
   },
   mounted () {
     const payload = {
-      socketUrl: 'http://localhost:5000/test'
+      socketUrl: 'http://localhost:5000/websocket'
     }
     this.$store.dispatch('Message/initializeWebSocket', payload)
   }
