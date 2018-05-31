@@ -18,6 +18,24 @@ services:
     depends_on:
       - broker
 
+  backend2:
+    build:
+      context: ./backend02
+    restart: always
+    environment:
+      REDIS_HOST: broker
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_SUBSCRIBE_CHANNEL: "multi-server"
+      APP_ENV: development
+    command: ["ruby", "server.rb", "-p", "5432", "-o", "0.0.0.0"]
+    ports:
+      - 5432:5432
+    volumes:
+      - ./backend02:/code
+    depends_on:
+      - broker
+
   frontend:
     build:
       context: ./frontend

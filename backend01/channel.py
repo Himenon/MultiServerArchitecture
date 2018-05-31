@@ -56,7 +56,7 @@ def background_thread():
         if not isinstance(_data, bytes):
             continue
         message = _convert_fmt_message(_data)
-        socketio.emit(EMIT_TARGET_NEW_MESSAGE, message, namespace=ns)        
+        socketio.emit(EMIT_TARGET_NEW_MESSAGE, message, namespace=WS_NAMESPACE)        
 
 
 @socketio.on('connect', namespace=WS_NAMESPACE)

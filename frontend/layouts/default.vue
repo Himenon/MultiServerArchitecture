@@ -5,8 +5,8 @@
         v-btn(flat to='/') {{ siteTitle }}
       v-spacer
       v-toolbar-items
-        v-btn(flat) Flask
-        v-btn(flat) Sinatra
+        v-btn(flat to='/flask') Flask
+        v-btn(flat to='/sinatra') Sinatra
     v-content
       <nuxt/>
 </template>
