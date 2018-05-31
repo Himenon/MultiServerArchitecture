@@ -1,9 +1,9 @@
 version: '2.1'
 
 services:
-  backend:
+  backend-flask:
     build:
-      context: ./backend01
+      context: ./backend-flask
     restart: always
     environment:
       PYTHONUNBUFFERED: 0
@@ -14,13 +14,13 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./backend01:/code
+      - ./backend-flask:/code
     depends_on:
       - broker
 
-  backend2:
+  backend-node:
     build:
-      context: ./backend02
+      context: ./backend-node
     restart: always
     environment:
       REDIS_HOST: broker
@@ -28,11 +28,11 @@ services:
       REDIS_DB: 0
       REDIS_SUBSCRIBE_CHANNEL: "multi-server"
       APP_ENV: development
-    command: ["ruby", "server.rb", "-p", "5432", "-o", "0.0.0.0"]
+    command: ["node", "server.js"]
     ports:
-      - 5432:5432
+      - 8080:8080
     volumes:
-      - ./backend02:/code
+      - ./backend-node:/code
     depends_on:
       - broker
 

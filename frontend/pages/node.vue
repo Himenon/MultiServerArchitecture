@@ -1,8 +1,8 @@
 <template lang="pug">
   v-container(grid-list-md)
     v-flex.xs-12
-      v-card(dark color="error")
-        v-card-text Sinatra | {{socketUrl}}
+      v-card(dark color="success")
+        v-card-text Node | {{socketUrl}}
     ChatView(:messages='messages', v-on:submit-message='onSubmitMessage')
 </template>
 
@@ -12,7 +12,7 @@ import ChatView from '~/components/chat'
 
 export default {
   data: () => ({
-    socketUrl: 'http://localhost:5432/websocket'
+    socketUrl: 'http://localhost:8080/websocket'
   }),
   computed: {
     ...mapState('Message', {

@@ -1,5 +1,5 @@
-import API from '~/api'
 import io from 'socket.io-client'
+import API from '~/api'
 
 let socket = null
 
@@ -10,18 +10,19 @@ function setWebsocket(socketUrl) {
 }
 
 function listenWebsocket(commit) {
-  socket.on('connect', function () {
-    socket.emit(EMIT_TARGET_EVENT_MESSAGE, {data: 'I\'m connected'})
+  socket.on('connect', function() {
+    console.info('Webscoketの接続を確立しました')
   })
-  socket.on('new_message', function (msg) {
-    console.log("ReceiveMessage")
-    if (msg && ('username' in msg) && ('body' in msg) && msg['username'] && msg['body']) {
+  socket.on('new_message', function(msg) {
+    console.log('[new_message]', msg)
+    if (msg && ('username' in msg) && ('body' in msg) && msg['username'] &&
+        msg['body']) {
       commit('setMessage', msg)
     }
   })
 }
 
-function sendMessage(message) {
+function emitMessage(message) {
   socket.emit(EMIT_TARGET_EVENT_MESSAGE, message)
 }
 
@@ -36,34 +37,26 @@ const state = () => ({
 
 const actions = {
   initializeWebSocket({commit}, payload) {
-    console.log("websocketの初期化")
+    console.log('websocketの初期化')
     setWebsocket(payload.socketUrl)
     listenWebsocket(commit)
   },
-  sendMessage ({commit}, payload) {
-    console.log("sendmeessage")
-    sendMessage(payload)
+  sendMessage({commit}, payload) {
+    emitMessage(payload)
   },
 }
 
-const getters = {
-}
+const getters = {}
 
 const mutations = {
-  setMessage (state, message) {
+  setMessage(state, message) {
     console.log(message)
     state.messages.unshift(message)
   }
 }
 
-const computed = {
-}
+const computed = {}
 
 export default {
-  namespaced: true,
-  state,
-  actions,
-  getters,
-  mutations,
-  computed
+  namespaced: true, state, actions, getters, mutations, computed
 }

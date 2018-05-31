@@ -36,6 +36,7 @@ export default {
         body: this.body
       }
       this.$emit('submit-message', event, payload)
+      this.body = ''
     }
   },
   mounted: function() {},

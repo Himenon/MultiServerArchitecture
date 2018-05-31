@@ -6,7 +6,7 @@
       v-spacer
       v-toolbar-items
         v-btn(flat to='/flask') Flask
-        v-btn(flat to='/sinatra') Sinatra
+        v-btn(flat to='/node') Node
     v-content
       <nuxt/>
 </template>

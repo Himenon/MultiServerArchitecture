@@ -8,7 +8,7 @@
             | 異なるバックエンド間でチャットをするためのサンプルです。
           v-divider.my-3
           .title.mb-3 Githubでコードを確認できます
-          v-btn.mx-0(large='', color='primary' href='https://github.com/Himenon/MultiServerArchitecture') See more
+          v-btn.mx-0(large='', color='primary' href='https://github.com/Himenon/MultiServerArchitecture') See Code
 </template>
 
 <script>
