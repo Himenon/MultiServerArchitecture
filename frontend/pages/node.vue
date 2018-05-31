@@ -12,7 +12,7 @@ import ChatView from '~/components/chat'
 
 export default {
   data: () => ({
-    socketUrl: 'http://localhost:8080/websocket'
+    socketUrl: 'ws://localhost:8080/websocket'
   }),
   computed: {
     ...mapState('Message', {

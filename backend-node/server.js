@@ -27,10 +27,10 @@ function _convert_fmt_message(data) {
   return JSON.parse(data)
 }
 
+sub.subscribe(SUBSCRIBE_CHANNEL)
+
 ws.on('connection', function(socketio) {
-  sub.subscribe(SUBSCRIBE_CHANNEL)
   sub.on('message', function(channel, data) {
-    console.log('subscribe', channel, data)
     const message = _convert_fmt_message(data)
     socketio.emit(EMIT_TARGET_NEW_MESSAGE, message)
   })
